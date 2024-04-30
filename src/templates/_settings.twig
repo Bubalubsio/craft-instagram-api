@@ -3,4 +3,15 @@
 
 {% import '_includes/forms.twig' as forms %}
 
-sdasdsa
+<h1>Settings</h1>
+
+{{ forms.textField({ 
+  label: 'Facebook App ID',
+  id: 'appId',
+  name: 'appId',
+  instructions: 'First you need to create a Facebook App. You can do this by visiting the <a href="https://developers.facebook.com/apps/">Facebook Developers</a> page.',
+  required: true,
+  value: settings.appId
+}) }}
+
+{{ forms.submitButton({}) }}
