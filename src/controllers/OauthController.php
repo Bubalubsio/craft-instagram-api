@@ -7,7 +7,6 @@ use Craft;
 use craft\helpers\UrlHelper;
 use GuzzleHttp\Client;
 use bubalubs\craftinstagram\CraftInstagram;
-use GuzzleHttp\Exception\ClientException;
 
 class OauthController extends Controller
 {

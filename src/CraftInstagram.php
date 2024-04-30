@@ -3,13 +3,10 @@
 namespace bubalubs\craftinstagram;
 
 use Craft;
-use yii\base\Event;
 use bubalubs\craftinstagram\models\Settings;
 use craft\base\Model;
 use craft\base\Plugin;
 use craft\helpers\UrlHelper;
-use craft\events\RegisterUrlRulesEvent;
-use craft\web\UrlManager;
 
 /**
  * craft-instagram plugin
