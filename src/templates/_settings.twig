@@ -7,7 +7,7 @@
 
 <p>First you need to create a Facebook App. You can do this by visiting the <a href="https://developers.facebook.com/apps/">Facebook Developers</a> page.</p>
 
-<p>You can find your <strong>App ID</strong> and <strong>App Secret</strong> on Facebook Developers -> App Settings -> Basic page. Then fill them in below.</p>
+<p>You can find your <strong>App ID</strong>, <strong>App Secret</strong> and <strong>Valid OAuth Redirect URIs</strong> on Facebook Developers -> App Settings -> Products -> Instagram Basic Display -> Basic Display. Then fill them in below.</p>
 
 {{ forms.textField({ 
   label: 'Facebook App ID',
@@ -27,7 +27,7 @@
 
 {{ forms.submitButton({ label: 'Save' }) }}
 
-<p>Before the next step, add the following to the <strong>Valid OAuth Redirect URIs</strong> field on the Facebook Developers -> App Settings -> Products -> Instagram Basic Display -> Basic Display:</p>
+<p>Before the next step, add the following to the <strong>Valid OAuth Redirect URIs</strong>:</p>
 
 <pre>{{ plugin.getRedirectUrl() }}</pre>
 
@@ -37,10 +37,10 @@
   <h1>Authenticate (OAuth)</h1>
 
   {% if settings.accessToken %}
-    <p style="background:green;display:inline;padding:8px;color:white;border-radius:5px;"><strong>You are successfully authenticated with Facebook!</strong></p>
+    <p style="background:#16A34A;display:inline;padding:8px;color:white;border-radius:5px;"><strong>You are successfully authenticated with Instagram!</strong></p>
   {% else %}
-    <p>After saving your Facebook App ID and Secret, you need to authenticate with Facebook to get an access token. Click the button below to authenticate.</p>
+    <p>After saving your Instagram App ID and Secret, you need to authenticate with Instagram to get an access token. Click the button below to authenticate.</p>
 
-    <a href="{{ plugin.getAuthUrl() }}" class="btn">Authenticate with Facebook</a>
+    <a href="{{ plugin.getAuthUrl() }}" class="btn">Authenticate with Instagram</a>
   {% endif %}
 {% endif %}
