@@ -7,8 +7,7 @@ use Craft;
 use craft\helpers\UrlHelper;
 use GuzzleHttp\Client;
 use bubalubs\craftinstagram\CraftInstagram;
-use craft\fields\Url;
-use GuzzleHttp\Psr7\Uri;
+use GuzzleHttp\Exception\ClientException;
 
 class OauthController extends Controller
 {
@@ -20,7 +19,7 @@ class OauthController extends Controller
         $settings = CraftInstagram::getInstance()->getSettings();
         $appId = $settings->appId;
         $appSecret = $settings->appSecret;
-        $redirectUri = UrlHelper::siteUrl('/');
+        $redirectUri = CraftInstagram::getInstance()->getRedirectUrl();
 
         $client = new Client();
 
@@ -36,7 +35,8 @@ class OauthController extends Controller
 
         if ($response->getStatusCode() !== 200) {
             Craft::$app->getSession()->setError('Failed to connect to Instagram');
-            return $this->redirect('settings/plugins/craft-instagram');
+
+            return $this->redirect(UrlHelper::cpUrl('settings/plugins/craft-instagram'));
         }
 
         $response = json_decode($response->getBody()->getContents());
