@@ -3,9 +3,13 @@
 namespace bubalubs\craftinstagram;
 
 use Craft;
+use yii\base\Event;
 use bubalubs\craftinstagram\models\Settings;
 use craft\base\Model;
 use craft\base\Plugin;
+use craft\helpers\UrlHelper;
+use craft\events\RegisterUrlRulesEvent;
+use craft\web\UrlManager;
 
 /**
  * craft-instagram plugin
@@ -34,11 +38,22 @@ class CraftInstagram extends Plugin
     {
         parent::init();
 
-        // Defer most setup tasks until Craft is fully initialized
-        Craft::$app->onInit(function() {
+        Craft::$app->onInit(function () {
             $this->attachEventHandlers();
-            // ...
         });
+    }
+
+    public function getAuthUrl(): string
+    {
+        $appId = $this->getSettings()->appId;
+        $redirectUri = $this->getRedirectUrl();
+
+        return "https://api.instagram.com/oauth/authorize?client_id={$appId}&redirect_uri={$redirectUri}&response_type=code&scope=user_profile,user_media";
+    }
+
+    public function getRedirectUrl(): string
+    {
+        return UrlHelper::siteUrl('actions/craft-instagram/oauth/handle');
     }
 
     protected function createSettingsModel(): ?Model
@@ -56,7 +71,6 @@ class CraftInstagram extends Plugin
 
     private function attachEventHandlers(): void
     {
-        // Register event handlers here ...
-        // (see https://craftcms.com/docs/4.x/extend/events.html to get started)
+        //
     }
 }
