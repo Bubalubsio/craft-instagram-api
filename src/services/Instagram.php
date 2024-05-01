@@ -10,10 +10,12 @@ use GuzzleHttp\Client;
 class Instagram extends Component
 {
     private CacheInterface $cache;
+    private int $cacheDuration = 60 * 60 * 24;
 
     public function init()
     {
         $this->cache = Craft::$app->getCache();
+        $this->cacheDuration = Craft::$app->plugins->getPlugin('instagram-api')->getSettings()->cacheDuration;
     }
 
     public function getProfile($cache = true): array
@@ -41,7 +43,7 @@ class Instagram extends Component
         $contents = $response->getBody()->getContents();
 
         if ($cache) {
-            $this->cache->set('instagram-api-profile', $contents, 60 * 60 * 24);
+            $this->cache->set('instagram-api-profile', $contents, $this->cacheDuration);
         }
 
         return json_decode($contents, true);
@@ -72,7 +74,7 @@ class Instagram extends Component
         $contents = $response->getBody()->getContents();
 
         if ($cache) {
-            $this->cache->set('instagram-api-media', $contents, 60 * 60 * 24);
+            $this->cache->set('instagram-api-media', $contents, $this->cacheDuration);
         }
 
         return json_decode($contents, true)['data'];

@@ -9,6 +9,7 @@ class Settings extends Model
     public $appId = '';
     public $appSecret = '';
     public $accessToken = '';
+    public $cacheDuration = 60 * 60 * 24;
 
     public function rules(): array
     {
@@ -17,6 +18,9 @@ class Settings extends Model
             ['appId', 'required'],
             ['appSecret', 'string'],
             ['appSecret', 'required'],
+            ['accessToken', 'string'],
+            ['cacheDuration', 'integer'],
+            ['cacheDuration', 'required'],
         ];
     }
 

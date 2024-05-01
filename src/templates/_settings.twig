@@ -80,8 +80,18 @@
 
       <h2>Caching</h4>
 
-      <p>Instagram data is automatically cached for <strong>1 day</strong> to significantly improve performance.</p>
+      <p>Instagram data is automatically cached to significantly improve performance.</p>
       
+      {{ forms.textField({ 
+        label: 'Cache Duration (in seconds)',
+        id: 'cacheDuration',
+        name: 'cacheDuration',
+        required: true,
+        value: settings.cacheDuration
+      }) }}
+
+      {{ forms.submitButton({ label: 'Save' }) }}
+
       <p><strong>Note:</strong> If you need to refresh the data now, you can clear the cache below. You can also preheat the cache to ensure the cache is ready for the next request.</p>
 
       <p>Media Cache Status: <strong>{{ craft.instagram.getMediaCacheStatus() ? 'Cached' : 'Not Cached' }}</strong></p>

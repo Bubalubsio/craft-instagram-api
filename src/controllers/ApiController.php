@@ -15,10 +15,12 @@ class ApiController extends Controller
 
     private string $apiBaseUrl = 'https://graph.instagram.com/me';
     private CacheInterface $cache = Craft::$app->getCache();
+    private int $cacheDuration = 60 * 60 * 24;
 
     public function beforeAction($action): bool
     {
         $this->cache = Craft::$app->getCache();
+        $this->cacheDuration = InstagramAPI::getInstance()->getSettings()->cacheDuration;
 
         return parent::beforeAction($action);
     }
@@ -52,7 +54,7 @@ class ApiController extends Controller
         
         $contents = $response->getBody()->getContents();
 
-        $this->cache->set('instagram-api-profile', $contents, 60 * 60 * 24);
+        $this->cache->set('instagram-api-profile', $contents, $this->cacheDuration);
         
         return $this->asJson($contents);
     }
@@ -82,7 +84,7 @@ class ApiController extends Controller
 
         $contents = $response->getBody()->getContents();
 
-        $this->cache->set('instagram-api-media', $contents, 60 * 60 * 24);
+        $this->cache->set('instagram-api-media', $contents, $this->cacheDuration);
 
         return $this->asJson($contents);
     }
