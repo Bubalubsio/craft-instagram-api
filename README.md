@@ -1,6 +1,6 @@
-# craft-instagram-api
+# Craft CMS Instagram API Plugin
 
-Instagram API Integration for Craft CMS
+Instagram API Integration Plugin for Craft CMS
 
 ## Requirements
 
@@ -10,15 +10,9 @@ This plugin requires Craft CMS 5.0.0 or later, and PHP 8.2 or later.
 
 You can install this plugin from the Plugin Store or with Composer.
 
-```bash
-composer require bubalubs/craft-instagram-api
-
-php craft plugin/install craft-instagram-api
-```
-
 #### From the Plugin Store
 
-Go to the Plugin Store in your project’s Control Panel and search for “craft-instagram-api”. Then press “Install”.
+Go to the Plugin Store in your project’s Control Panel and search for "Instagram API". Then press "Install".
 
 #### With Composer
 
