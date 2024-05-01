@@ -1,6 +1,6 @@
 {
     "name": "bubalubs/craft-instagram-api",
-    "description": "Instagram Integration for Craft CMS",
+    "description": "Instagram API Integration for Craft CMS, allowing you to fetch media from Instagram and display it on your website.",
     "type": "craft-plugin",
     "license": "proprietary",
     "support": {
