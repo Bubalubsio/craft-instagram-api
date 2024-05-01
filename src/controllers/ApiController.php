@@ -5,18 +5,33 @@ namespace bubalubs\craftinstagramapi\controllers;
 use Craft;
 use craft\web\Controller;
 use yii\web\Response;
+use yii\caching\CacheInterface;
 use bubalubs\craftinstagramapi\InstagramAPI;
 use GuzzleHttp\Client;
 
 class ApiController extends Controller
 {
     protected array|bool|int $allowAnonymous = true;
-    
+
     private string $apiBaseUrl = 'https://graph.instagram.com/me';
+    private CacheInterface $cache = Craft::$app->getCache();
+
+    public function beforeAction($action): bool
+    {
+        $this->cache = Craft::$app->getCache();
+
+        return parent::beforeAction($action);
+    }
 
     // URL: /actions/instagram-api/api/profile
     public function actionProfile(): Response
     {
+        $profile = $this->cache->get('instagram-api-profile');
+
+        if ($profile) {
+            return $this->asJson($profile);
+        }
+        
         $accessToken = Craft::$app->plugins->getPlugin('instagram-api')->getSettings()->accessToken;
 
         if (!$accessToken) {
@@ -34,15 +49,23 @@ class ApiController extends Controller
                 'error' => 'Failed to connect to Instagram'
             ]);
         }
+        
+        $contents = $response->getBody()->getContents();
 
-        $response = json_decode($response->getBody()->getContents());
-
-        return $this->asJson($response);
+        $this->cache->set('instagram-api-profile', $contents, 60 * 60 * 24);
+        
+        return $this->asJson($contents);
     }
 
     // URL: /actions/instagram-api/api/media
     public function actionMedia(): Response
     {
+        $media = $this->cache->get('instagram-api-media');
+
+        if ($media) {
+            return $this->asJson($media);
+        }
+
         $accessToken = InstagramAPI::getInstance()->getSettings()->accessToken;
 
         $client = new Client();
@@ -57,8 +80,10 @@ class ApiController extends Controller
             ]);
         }
 
-        $response = json_decode($response->getBody()->getContents());
+        $contents = $response->getBody()->getContents();
 
-        return $this->asJson($response);
+        $this->cache->set('instagram-api-media', $contents, 60 * 60 * 24);
+
+        return $this->asJson($contents);
     }
 }

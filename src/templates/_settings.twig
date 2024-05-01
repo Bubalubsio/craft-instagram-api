@@ -58,21 +58,38 @@
   {% if settings.accessToken %}
     <p style="background:#16A34A;display:inline-block;padding:8px;color:white;border-radius:5px;font-size:16px;margin:0;"><strong>Completed: You are successfully authenticated with Instagram!</strong></p>
   
-    {% set instagramProfile = craft.instagram.getProfile() %}
+    {% set instagramProfile = craft.instagram.getProfile(false) %}
 
     {% if instagramProfile %}
-      <h4>Connected Instagram Profile</h4>
+      <hr>
+
+      <h2>Connected Instagram Profile</h4>
 
       <p>
-        <strong>ID:</strong> {{ instagramProfile.id }}<br>
-        <strong>Username:</strong> {{ instagramProfile.username }}<br>
-        <strong>Account Type:</strong> {{ instagramProfile.account_type }}<br>
-        <strong>Media Count:</strong> {{ instagramProfile.media_count }}<br>
+        ID: <strong>{{ instagramProfile.id }}</strong><br>
+        Username: <strong>{{ instagramProfile.username }}</strong><br>
+        Account Type: <strong>{{ instagramProfile.account_type }}</strong><br>
+        Media Count: <strong>{{ instagramProfile.media_count }}</strong><br>
       </p>
 
       <a href="https://www.instagram.com/{{ instagramProfile.username }}" class="btn">View Instagram Profile</a>
 
       <a href="/actions/instagram-api/admin/clear-access-token" class="btn submit">Clear Access Token</a>
+
+      <hr>
+
+      <h2>Caching</h4>
+
+      <p>Instagram data is automatically cached for <strong>1 day</strong> to significantly improve performance.</p>
+      
+      <p><strong>Note:</strong> If you need to refresh the data now, you can clear the cache below. You can also preheat the cache to ensure the cache is ready for the next request.</p>
+
+      <p>Media Cache Status: <strong>{{ craft.instagram.getMediaCacheStatus() ? 'Cached' : 'Not Cached' }}</strong></p>
+      <p>Profile Cache Status: <strong>{{ craft.instagram.getProfileCacheStatus() ? 'Cached' : 'Not Cached' }}</strong></p>
+
+      <a href="/actions/instagram-api/admin/preheat-cache" class="btn">Preheat Cache</a>
+
+      <a href="/actions/instagram-api/admin/clear-cache" class="btn submit">Clear Cache</a>
     {% endif %}
   {% else %}
     <p>After saving your Instagram App ID and Secret, you need to authenticate with Instagram to get an access token. Click the button below to start the authorization flow with Instagram.</p>

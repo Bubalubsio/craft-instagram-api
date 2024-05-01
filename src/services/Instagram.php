@@ -4,12 +4,26 @@ namespace bubalubs\craftinstagramapi\services;
 
 use Craft;
 use yii\base\Component;
+use yii\caching\CacheInterface;
 use GuzzleHttp\Client;
 
 class Instagram extends Component
 {
-    public function getProfile(): array
+    private CacheInterface $cache;
+
+    public function init()
     {
+        $this->cache = Craft::$app->getCache();
+    }
+
+    public function getProfile($cache = true): array
+    {
+        $profile = $this->cache->get('instagram-api-profile');
+
+        if ($profile && $cache) {
+            return json_decode($profile, true);
+        }
+
         $accessToken = Craft::$app->plugins->getPlugin('instagram-api')->getSettings()->accessToken;
 
         if (!$accessToken) {
@@ -24,11 +38,23 @@ class Instagram extends Component
             return [];
         }
 
-        return json_decode($response->getBody()->getContents(), true);
+        $contents = $response->getBody()->getContents();
+
+        if ($cache) {
+            $this->cache->set('instagram-api-profile', $contents, 60 * 60 * 24);
+        }
+
+        return json_decode($contents, true);
     }
 
-    public function getMedia(): array
+    public function getMedia($cache = true): array
     {
+        $media = $this->cache->get('instagram-api-media');
+
+        if ($media && $cache) {
+            return json_decode($media, true)['data'];
+        }
+
         $accessToken = Craft::$app->plugins->getPlugin('instagram-api')->getSettings()->accessToken;
 
         if (!$accessToken) {
@@ -43,6 +69,22 @@ class Instagram extends Component
             return [];
         }
 
-        return json_decode($response->getBody()->getContents(), true)['data'];
+        $contents = $response->getBody()->getContents();
+
+        if ($cache) {
+            $this->cache->set('instagram-api-media', $contents, 60 * 60 * 24);
+        }
+
+        return json_decode($contents, true)['data'];
+    }
+
+    public function getMediaCacheStatus(): bool
+    {
+        return (bool) $this->cache->get('instagram-api-media');
+    }
+
+    public function getProfileCacheStatus(): bool
+    {
+        return (bool) $this->cache->get('instagram-api-profile');
     }
 }

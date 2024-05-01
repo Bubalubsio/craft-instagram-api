@@ -25,4 +25,29 @@ class AdminController extends Controller
 
         return $this->redirect(UrlHelper::cpUrl('settings/plugins/instagram-api'));
     }
+
+    public function actionPreheatCache(): Response
+    {
+        $instagram = InstagramAPI::getInstance()->instagram;
+
+        $instagram->getProfile();
+        $instagram->getMedia();
+
+        Craft::$app->getSession()->setNotice('Instagram API cache preheated!');
+
+        return $this->redirect(UrlHelper::cpUrl('settings/plugins/instagram-api'));
+    }
+
+    // URL: /actions/instagram-api/admin/clear-cache
+    public function actionClearCache(): Response
+    {
+        $cache = Craft::$app->getCache();
+
+        $cache->delete('instagram-api-profile');
+        $cache->delete('instagram-api-media');
+
+        Craft::$app->getSession()->setNotice('Instagram API cache cleared!');
+
+        return $this->redirect(UrlHelper::cpUrl('settings/plugins/instagram-api'));
+    }
 }
