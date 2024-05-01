@@ -1,14 +1,15 @@
 <?php
 
-namespace bubalubs\instagramapi;
+namespace bubalubs\craftinstagramapi;
 
 use Craft;
-use GuzzleHttp\Client;
-use bubalubs\instagramapi\models\Settings;
-use bubalubs\instagramapi\services\Instagram;
+use craft\web\twig\variables\CraftVariable;
 use craft\base\Model;
 use craft\base\Plugin;
 use craft\helpers\UrlHelper;
+use yii\base\Event;
+use bubalubs\craftinstagramapi\models\Settings;
+use bubalubs\craftinstagramapi\services\Instagram;
 
 /**
  * Instagram API plugin
@@ -54,21 +55,6 @@ class InstagramAPI extends Plugin
         return UrlHelper::siteUrl('actions/instagram-api/oauth/handle');
     }
 
-    public function getMedia(): array
-    {
-        $accessToken = $this->getSettings()->accessToken;
-
-        $client = new Client();
-
-        $response = $client->get("https://graph.instagram.com/me/media?fields=id,caption,media_type,media_url,thumbnail_url,permalink,timestamp&access_token={$accessToken}");
-
-        if ($response->getStatusCode() !== 200) {
-            return [];
-        }
-
-        return json_decode($response->getBody()->getContents(), true)['data'];
-    }
-
     protected function createSettingsModel(): ?Model
     {
         return Craft::createObject(Settings::class);
@@ -84,6 +70,15 @@ class InstagramAPI extends Plugin
 
     private function attachEventHandlers(): void
     {
-        //
+        Event::on(
+            CraftVariable::class,
+            CraftVariable::EVENT_INIT,
+            function (Event $e) {
+                /** @var CraftVariable $variable */
+                $variable = $e->sender;
+
+                $variable->set('instagram', Instagram::class);
+            }
+        );
     }
 }

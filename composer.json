@@ -20,7 +20,7 @@
     },
     "autoload": {
         "psr-4": {
-            "bubalubs\\instagramapi\\": "src/"
+            "bubalubs\\craftinstagramapi\\": "src/"
         }
     },
     "extra": {
@@ -28,7 +28,7 @@
         "name": "Instagram API",
         "developer": "Bubalubs",
         "documentationUrl": "https://github.com/bubalubs/craft-instagram-api",
-        "class": "bubalubs\\instagramapi\\InstagramAPI"
+        "class": "bubalubs\\craftinstagramapi\\InstagramAPI"
     },
     "scripts": {
         "check-cs": "ecs check --ansi",

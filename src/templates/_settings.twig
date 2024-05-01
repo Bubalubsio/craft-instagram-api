@@ -1,5 +1,5 @@
-{# @var plugin \bubalubs\instagramapi\InstagramAPI #}
-{# @var settings \bubalubs\instagramapi\models\Settings #}
+{# @var plugin \bubalubs\craftinstagramapi\InstagramAPI #}
+{# @var settings \bubalubs\craftinstagramapi\models\Settings #}
 
 {% import '_includes/forms.twig' as forms %}
 
@@ -56,9 +56,26 @@
   <h2>Step 4</h2>
 
   {% if settings.accessToken %}
-    <p style="background:#16A34A;display:inline;padding:8px;color:white;border-radius:5px;"><strong>Completed: You are successfully authenticated with Instagram!</strong></p>
+    <p style="background:#16A34A;display:inline-block;padding:8px;color:white;border-radius:5px;font-size:16px;margin:0;"><strong>Completed: You are successfully authenticated with Instagram!</strong></p>
+  
+    {% set instagramProfile = craft.instagram.getProfile() %}
+
+    {% if instagramProfile %}
+      <h4>Connected Instagram Profile</h4>
+
+      <p>
+        <strong>ID:</strong> {{ instagramProfile.id }}<br>
+        <strong>Username:</strong> {{ instagramProfile.username }}<br>
+        <strong>Account Type:</strong> {{ instagramProfile.account_type }}<br>
+        <strong>Media Count:</strong> {{ instagramProfile.media_count }}<br>
+      </p>
+
+      <a href="https://www.instagram.com/{{ instagramProfile.username }}" class="btn">View Instagram Profile</a>
+
+      <a href="/actions/instagram-api/admin/clear-access-token" class="btn submit">Clear Access Token</a>
+    {% endif %}
   {% else %}
-    <p>After saving your Instagram App ID and Secret, you need to authenticate with Instagram to get an access token. Click the button below to authenticate.</p>
+    <p>After saving your Instagram App ID and Secret, you need to authenticate with Instagram to get an access token. Click the button below to start the authorization flow with Instagram.</p>
 
     <a href="{{ plugin.getAuthUrl() }}" class="btn">Authenticate with Instagram</a>
   {% endif %}
@@ -66,23 +83,114 @@
 
 <hr>
 
-<h2>Step 5</h2>
+<h1>Javascript API Examples</h1>
 
-<p>Once you have authenticated with Instagram, you can use it in your templates.</p>
+<h4>Get Instagram Media</h4>
 
-<h3>Twig Examples</h3>
+<p>Endpoint: <span style="background:#eee;padding:8px;border-radius:5px;">/actions/instagram-api/api/media</span></p>
+
+<pre style="background:#eee;padding:16px;color:black;line-height:28px;">
+{{ 'fetch(\'/actions/instagram-api/api/media\')
+  .then(response => response.json())
+  .then(data => {
+      console.log(data);
+  });'|e }}
+</pre>
+
+<br>
+
+<h4>Get Instagram Profile</h4>
+
+<p>Endpoint: <span style="background:#eee;padding:8px;border-radius:5px;">/actions/instagram-api/api/profile</span></p>
+
+<pre style="background:#eee;padding:16px;color:black;line-height:28px;">
+{{ 'fetch(\'/actions/instagram-api/api/profile\')
+  .then(response => response.json())
+  .then(data => {
+      console.log(data);
+  });'|e }}
+</pre>
+
+<hr>
+
+<h1>Twig Examples</h1>
 
 <h4>Loop through Instagram Media</h4>
 
 <pre style="background:#eee;padding:16px;color:black;line-height:28px;">
 {{ '{% set instagramMedia = craft.instagram.getMedia() %}
-  {% if instagramMedia|length %}
-    <div class="flex">
-      {% for media in instagramMedia.data %}
-        <div class="flex-auto">
-          <img src="{{ media.media_url }}" alt="" />
-        </div>
-      {% endfor %}
+
+{% if instagramMedia|length %}
+    <div class="grid grid-cols-4 gap-4">
+        {% for media in instagramMedia %}
+            <div>
+                <a href="{{ media.permalink }}" title="View on Instagram" target="_blank">
+                    <img src="{{ media.media_url }}" alt="{{ media.caption }}" />
+                </a>
+            </div>
+        {% endfor %}
     </div>
 {% endif %}'|e }}
 </pre>
+
+<br>
+
+<h4>Get Profile Data</h4>
+
+<pre style="background:#eee;padding:16px;color:black;line-height:28px;">
+{{ '{% set instagramProfile = craft.instagram.getProfile() %}
+
+{% if instagramProfile %}
+  <h2>Instagram Profile</h2>
+
+  <p>
+      <strong>ID:</strong> {{ instagramProfile.id }}<br>
+      <strong>Username:</strong> {{ instagramProfile.username }}<br>
+      <strong>Account Type:</strong> {{ instagramProfile.account_type }}<br>
+      <strong>Media Count:</strong> {{ instagramProfile.media_count }}<br>
+  </p>
+{% endif %}'|e }}
+</pre>
+
+<hr>
+
+<h1>PHP Examples</h1>
+
+<h4>Loop through Instagram Media and save locally</h4>
+
+<pre style="background:#eee;padding:16px;color:black;line-height:28px;">
+{{ 'use bubalubs\\instagramapi\\InstagramAPI;
+
+// ...
+
+$instagramMedia = InstagramAPI::getInstance()->instagram->getMedia();
+
+foreach ($instagramMedia as $media) {
+    $mediaUrl = $media[\'media_url\'];
+    $file = file_get_contents($mediaUrl);
+
+    // Strip query string from filename
+    $newFilename = pathinfo(explode(\'?\', $mediaUrl)[0], PATHINFO_BASENAME);
+    
+    // Check if directory exists
+    if (!file_exists(Craft::$app->path->getStoragePath() . \'/instagram\')) {
+        mkdir(Craft::$app->path->getStoragePath() . \'/instagram\', 0775, true);
+    }
+
+    // Save file locally
+    file_put_contents(Craft::$app->path->getStoragePath() . \'/instagram/\' . $newFilename, $file);
+}'|e }}
+</pre>
+
+<br>
+
+<h4>Get Profile Data</h4>
+
+<pre style="background:#eee;padding:16px;color:black;line-height:28px;">
+{{ 'use bubalubs\\instagramapi\\InstagramAPI;
+
+// ...
+
+$instagramProfile = InstagramAPI::getInstance()->instagram->getProfile();'|e }}
+</pre>
+

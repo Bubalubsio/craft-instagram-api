@@ -1,20 +1,26 @@
 <?php
 
-namespace bubalubs\instagramapi\controllers;
+namespace bubalubs\craftinstagramapi\controllers;
 
-use craft\web\Controller;
 use Craft;
+use craft\web\Controller;
 use craft\helpers\UrlHelper;
+use bubalubs\craftinstagramapi\InstagramAPI;
 use GuzzleHttp\Client;
-use bubalubs\instagramapi\InstagramAPI;
 
 class OauthController extends Controller
 {
-    protected array|bool|int $allowAnonymous = true;
+    protected array|bool|int $allowAnonymous = false;
 
+    // URL: /actions/instagram-api/oauth/handle
     public function actionHandle()
     {
         $code = $this->request->getParam('code');
+        
+        if (!$code) {
+            return null;
+        }
+
         $settings = InstagramAPI::getInstance()->getSettings();
         $appId = $settings->appId;
         $appSecret = $settings->appSecret;
@@ -47,24 +53,5 @@ class OauthController extends Controller
         Craft::$app->getSession()->setNotice('Instagram successfully connected!');
 
         return $this->redirect(UrlHelper::cpUrl('settings/plugins/instagram-api'));
-    }
-
-    // TODO: move this to a new controller
-    public function actionGetMedia()
-    {
-        $accessToken = InstagramAPI::getInstance()->getSettings()->accessToken;
-
-        $client = new Client();
-
-        $response = $client->get("https://graph.instagram.com/me/media?fields=id,caption,media_type,media_url,thumbnail_url,permalink,timestamp&access_token={$accessToken}");
-
-        if ($response->getStatusCode() !== 200) {
-            Craft::$app->getSession()->setError('Failed to connect to Instagram');
-            return $this->redirect('settings/plugins/instagram-api');
-        }
-
-        $response = json_decode($response->getBody()->getContents());
-
-        return $this->asJson($response);
     }
 }
