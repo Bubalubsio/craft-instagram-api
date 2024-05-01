@@ -25,7 +25,7 @@
   },
   "extra": {
     "handle": "craft-instagram",
-    "name": "craft-instagram",
+    "name": "Craft Instagram",
     "developer": "Bubalubs",
     "documentationUrl": "https://github.com/bubalubs/craft-instagram",
     "class": "bubalubs\\craftinstagram\\CraftInstagram"
