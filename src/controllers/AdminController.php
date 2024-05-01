@@ -7,6 +7,7 @@ use craft\web\Controller;
 use yii\web\Response;
 use bubalubs\craftinstagramapi\InstagramAPI;
 use craft\helpers\UrlHelper;
+use GuzzleHttp\Client;
 
 class AdminController extends Controller
 {
@@ -47,6 +48,38 @@ class AdminController extends Controller
         $cache->delete('instagram-api-media');
 
         Craft::$app->getSession()->setNotice('Instagram API cache cleared!');
+
+        return $this->redirect(UrlHelper::cpUrl('settings/plugins/instagram-api'));
+    }
+
+    public function actionRefreshAccessToken(): Response
+    {
+        $settings = InstagramAPI::getInstance()->getSettings();
+        $accessToken = $settings->accessToken;
+
+        $client = new Client();
+
+        $response = $client->get('https://graph.instagram.com/refresh_access_token', [
+            'query' => [
+                'grant_type' => 'ig_refresh_token',
+                'access_token' => $accessToken,
+            ],
+        ]);
+
+        if ($response->getStatusCode() !== 200) {
+            Craft::$app->getSession()->setError('Failed to connect to Instagram');
+
+            return $this->redirect(UrlHelper::cpUrl('settings/plugins/instagram-api'));
+        }
+
+        $response = json_decode($response->getBody()->getContents());
+
+        $settings->accessToken = $response->access_token;
+        $settings->accessTokenExpires = date('Y-m-d H:i:s', time() + $response->expires_in);
+
+        Craft::$app->getPlugins()->savePluginSettings(InstagramAPI::getInstance(), $settings->getAttributes());
+
+        Craft::$app->getSession()->setNotice('Instagram token successfully refreshed!');
 
         return $this->redirect(UrlHelper::cpUrl('settings/plugins/instagram-api'));
     }
