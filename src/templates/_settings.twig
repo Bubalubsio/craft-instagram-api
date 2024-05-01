@@ -1,16 +1,39 @@
-{# @var plugin \bubalubs\craftinstagram\CraftInstagram #}
-{# @var settings \bubalubs\craftinstagram\models\Settings #}
+{# @var plugin \bubalubs\instagramapi\InstagramAPI #}
+{# @var settings \bubalubs\instagramapi\models\Settings #}
 
 {% import '_includes/forms.twig' as forms %}
 
-<h1>Settings</h1>
+<h1>Setup</h1>
+
+<hr>
+
+<h2>Step 1</h2>
 
 <p>First you need to create a Facebook App. You can do this by visiting the <a href="https://developers.facebook.com/apps/">Facebook Developers</a> page.</p>
 
-<p>You can find your <strong>App ID</strong>, <strong>App Secret</strong> and <strong>Valid OAuth Redirect URIs</strong> on Facebook Developers -> App Settings -> Products -> Instagram Basic Display -> Basic Display. Then fill them in below.</p>
+<p><strong>Note:</strong> You can find your <strong>App ID</strong>, <strong>App Secret</strong> and <strong>Valid OAuth Redirect URIs</strong> at: <span style="background:#eee;padding:8px;border-radius:5px;">Facebook Developers -> App Settings -> Products -> Instagram Basic Display -> Basic Display</span></p>
+
+<hr>
+
+<h2>Step 2</h2>
+
+<p>Add the following to the <strong>Valid OAuth Redirect URIs</strong> field on your Instagram App settings.</p>
+
+<p><strong>Note:</strong> If you are in a development environment, remember to additionally add your live domain to the <strong>Valid OAuth Redirect URIs</strong> field.</p>
+
+{{ forms.copytextField({ 
+  label: 'Copy Valid OAuth Redirect URI',
+  value: plugin.getRedirectUrl(),
+}) }}
+
+<hr>
+
+<h2>Step 3</h2>
+
+<p>Fill in the following fields with your <strong>Instagram App ID</strong> and <strong>Instagram App Secret</strong>.</p>
 
 {{ forms.textField({ 
-  label: 'Facebook App ID',
+  label: 'Instagram App ID',
   id: 'appId',
   name: 'appId',
   required: true,
@@ -18,7 +41,7 @@
 }) }}
 
 {{ forms.passwordField({ 
-  label: 'Facebook App Secret',
+  label: 'Instagram App Secret',
   id: 'appSecret',
   name: 'appSecret',
   required: true,
@@ -27,20 +50,39 @@
 
 {{ forms.submitButton({ label: 'Save' }) }}
 
-<p>Before the next step, add the following to the <strong>Valid OAuth Redirect URIs</strong>:</p>
-
-<pre>{{ plugin.getRedirectUrl() }}</pre>
-
 {% if settings.appId and settings.appSecret %}
   <hr>
 
-  <h1>Authenticate (OAuth)</h1>
+  <h2>Step 4</h2>
 
   {% if settings.accessToken %}
-    <p style="background:#16A34A;display:inline;padding:8px;color:white;border-radius:5px;"><strong>You are successfully authenticated with Instagram!</strong></p>
+    <p style="background:#16A34A;display:inline;padding:8px;color:white;border-radius:5px;"><strong>Completed: You are successfully authenticated with Instagram!</strong></p>
   {% else %}
     <p>After saving your Instagram App ID and Secret, you need to authenticate with Instagram to get an access token. Click the button below to authenticate.</p>
 
     <a href="{{ plugin.getAuthUrl() }}" class="btn">Authenticate with Instagram</a>
   {% endif %}
 {% endif %}
+
+<hr>
+
+<h2>Step 5</h2>
+
+<p>Once you have authenticated with Instagram, you can use it in your templates.</p>
+
+<h3>Twig Examples</h3>
+
+<h4>Loop through Instagram Media</h4>
+
+<pre style="background:#eee;padding:16px;color:black;line-height:28px;">
+{{ '{% set instagramMedia = craft.instagram.getMedia() %}
+  {% if instagramMedia|length %}
+    <div class="flex">
+      {% for media in instagramMedia.data %}
+        <div class="flex-auto">
+          <img src="{{ media.media_url }}" alt="" />
+        </div>
+      {% endfor %}
+    </div>
+{% endif %}'|e }}
+</pre>

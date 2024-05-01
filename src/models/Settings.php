@@ -1,6 +1,6 @@
 <?php
 
-namespace bubalubs\craftinstagram\models;
+namespace bubalubs\instagramapi\models;
 
 use craft\base\Model;
 

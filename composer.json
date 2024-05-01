@@ -1,48 +1,48 @@
 {
-  "name": "bubalubs/craft-instagram",
-  "description": "Instagram Integration",
-  "type": "craft-plugin",
-  "license": "proprietary",
-  "support": {
-    "email": "adam@bubalubs.io",
-    "issues": "https://github.com/bubalubs/craft-instagram/issues?state=open",
-    "source": "https://github.com/bubalubs/craft-instagram",
-    "docs": "https://github.com/bubalubs/craft-instagram",
-    "rss": "https://github.com/bubalubs/craft-instagram/releases.atom"
-  },
-  "require": {
-    "php": ">=8.2",
-    "craftcms/cms": "^5.0.0"
-  },
-  "require-dev": {
-    "craftcms/ecs": "dev-main",
-    "craftcms/phpstan": "dev-main"
-  },
-  "autoload": {
-    "psr-4": {
-      "bubalubs\\craftinstagram\\": "src/"
-    }
-  },
-  "extra": {
-    "handle": "craft-instagram",
-    "name": "Craft Instagram",
-    "developer": "Bubalubs",
-    "documentationUrl": "https://github.com/bubalubs/craft-instagram",
-    "class": "bubalubs\\craftinstagram\\CraftInstagram"
-  },
-  "scripts": {
-    "check-cs": "ecs check --ansi",
-    "fix-cs": "ecs check --ansi --fix",
-    "phpstan": "phpstan --memory-limit=1G"
-  },
-  "config": {
-    "sort-packages": true,
-    "platform": {
-      "php": "8.2"
+    "name": "bubalubs/craft-instagram-api",
+    "description": "Instagram Integration for Craft CMS",
+    "type": "craft-plugin",
+    "license": "proprietary",
+    "support": {
+        "email": "adam@bubalubs.io",
+        "issues": "https://github.com/bubalubs/craft-instagram-api/issues?state=open",
+        "source": "https://github.com/bubalubs/craft-instagram-api",
+        "docs": "https://github.com/bubalubs/craft-instagram-api",
+        "rss": "https://github.com/bubalubs/craft-instagram-api/releases.atom"
     },
-    "allow-plugins": {
-      "yiisoft/yii2-composer": true,
-      "craftcms/plugin-installer": true
+    "require": {
+        "php": ">=8.2",
+        "craftcms/cms": "^5.0.0"
+    },
+    "require-dev": {
+        "craftcms/ecs": "dev-main",
+        "craftcms/phpstan": "dev-main"
+    },
+    "autoload": {
+        "psr-4": {
+            "bubalubs\\instagramapi\\": "src/"
+        }
+    },
+    "extra": {
+        "handle": "instagram-api",
+        "name": "Instagram API",
+        "developer": "Bubalubs",
+        "documentationUrl": "https://github.com/bubalubs/craft-instagram-api",
+        "class": "bubalubs\\instagramapi\\InstagramAPI"
+    },
+    "scripts": {
+        "check-cs": "ecs check --ansi",
+        "fix-cs": "ecs check --ansi --fix",
+        "phpstan": "phpstan --memory-limit=1G"
+    },
+    "config": {
+        "sort-packages": true,
+        "platform": {
+            "php": "8.2"
+        },
+        "allow-plugins": {
+            "yiisoft/yii2-composer": true,
+            "craftcms/plugin-installer": true
+        }
     }
-  }
 }

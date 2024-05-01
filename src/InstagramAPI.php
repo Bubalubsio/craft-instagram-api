@@ -1,23 +1,26 @@
 <?php
 
-namespace bubalubs\craftinstagram;
+namespace bubalubs\instagramapi;
 
 use Craft;
-use bubalubs\craftinstagram\models\Settings;
+use GuzzleHttp\Client;
+use bubalubs\instagramapi\models\Settings;
+use bubalubs\instagramapi\services\Instagram;
 use craft\base\Model;
 use craft\base\Plugin;
 use craft\helpers\UrlHelper;
 
 /**
- * craft-instagram plugin
+ * Instagram API plugin
  *
- * @method static CraftInstagram getInstance()
+ * @method static InstagramAPI getInstance()
  * @method Settings getSettings()
  * @author Bubalubs <adam@bubalubs.io>
  * @copyright Bubalubs
  * @license https://craftcms.github.io/license/ Craft License
+ * @property-read InstagramApi $instagramApi
  */
-class CraftInstagram extends Plugin
+class InstagramAPI extends Plugin
 {
     public string $schemaVersion = '1.0.0';
     public bool $hasCpSettings = true;
@@ -25,9 +28,7 @@ class CraftInstagram extends Plugin
     public static function config(): array
     {
         return [
-            'components' => [
-                // Define component configs here...
-            ],
+            'components' => ['instagram' => Instagram::class],
         ];
     }
 
@@ -50,7 +51,22 @@ class CraftInstagram extends Plugin
 
     public function getRedirectUrl(): string
     {
-        return UrlHelper::siteUrl('actions/craft-instagram/oauth/handle');
+        return UrlHelper::siteUrl('actions/instagram-api/oauth/handle');
+    }
+
+    public function getMedia(): array
+    {
+        $accessToken = $this->getSettings()->accessToken;
+
+        $client = new Client();
+
+        $response = $client->get("https://graph.instagram.com/me/media?fields=id,caption,media_type,media_url,thumbnail_url,permalink,timestamp&access_token={$accessToken}");
+
+        if ($response->getStatusCode() !== 200) {
+            return [];
+        }
+
+        return json_decode($response->getBody()->getContents(), true)['data'];
     }
 
     protected function createSettingsModel(): ?Model
@@ -60,7 +76,7 @@ class CraftInstagram extends Plugin
 
     protected function settingsHtml(): ?string
     {
-        return Craft::$app->view->renderTemplate('craft-instagram/_settings.twig', [
+        return Craft::$app->view->renderTemplate('instagram-api/_settings.twig', [
             'plugin' => $this,
             'settings' => $this->getSettings(),
         ]);
