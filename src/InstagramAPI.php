@@ -35,6 +35,12 @@ class InstagramAPI extends Plugin
 
     public function init(): void
     {
+        if (Craft::$app->getRequest()->getIsConsoleRequest()) {
+            $this->controllerNamespace = 'bubalubs\\craftinstagramapi\\console\\controllers';
+        } else {
+            $this->controllerNamespace = 'bubalubs\\craftinstagramapi\\controllers';
+        }
+
         parent::init();
 
         Craft::$app->onInit(function () {

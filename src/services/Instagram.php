@@ -3,6 +3,7 @@
 namespace bubalubs\craftinstagramapi\services;
 
 use Craft;
+use craft\helpers\UrlHelper;
 use yii\base\Component;
 use yii\caching\CacheInterface;
 use GuzzleHttp\Client;
@@ -78,6 +79,34 @@ class Instagram extends Component
         }
 
         return json_decode($contents, true)['data'];
+    }
+
+    public function refreshToken()
+    {
+        $settings = Craft::$app->plugins->getPlugin('instagram-api')->getSettings();
+        $accessToken = $settings->accessToken;
+
+        $client = new Client();
+
+        $response = $client->get('https://graph.instagram.com/refresh_access_token', [
+            'query' => [
+                'grant_type' => 'ig_refresh_token',
+                'access_token' => $accessToken,
+            ],
+        ]);
+
+        if ($response->getStatusCode() !== 200) {
+            Craft::$app->getSession()->setError('Failed to connect to Instagram');
+
+            return $this->redirect(UrlHelper::cpUrl('settings/plugins/instagram-api'));
+        }
+
+        $response = json_decode($response->getBody()->getContents());
+
+        $settings->accessToken = $response->access_token;
+        $settings->accessTokenExpires = date('Y-m-d H:i:s', time() + $response->expires_in);
+
+        return Craft::$app->getPlugins()->savePluginSettings(Craft::$app->plugins->getPlugin('instagram-api'), $settings->getAttributes()); 
     }
 
     public function getMediaCacheStatus(): bool

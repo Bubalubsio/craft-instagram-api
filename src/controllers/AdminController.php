@@ -54,30 +54,13 @@ class AdminController extends Controller
 
     public function actionRefreshAccessToken(): Response
     {
-        $settings = InstagramAPI::getInstance()->getSettings();
-        $accessToken = $settings->accessToken;
+        $response = InstagramAPI::getInstance()->instagram->refreshToken();
 
-        $client = new Client();
-
-        $response = $client->get('https://graph.instagram.com/refresh_access_token', [
-            'query' => [
-                'grant_type' => 'ig_refresh_token',
-                'access_token' => $accessToken,
-            ],
-        ]);
-
-        if ($response->getStatusCode() !== 200) {
-            Craft::$app->getSession()->setError('Failed to connect to Instagram');
+        if (!$response) {
+            Craft::$app->getSession()->setError('Failed to refresh token!');
 
             return $this->redirect(UrlHelper::cpUrl('settings/plugins/instagram-api'));
         }
-
-        $response = json_decode($response->getBody()->getContents());
-
-        $settings->accessToken = $response->access_token;
-        $settings->accessTokenExpires = date('Y-m-d H:i:s', time() + $response->expires_in);
-
-        Craft::$app->getPlugins()->savePluginSettings(InstagramAPI::getInstance(), $settings->getAttributes());
 
         Craft::$app->getSession()->setNotice('Instagram token successfully refreshed!');
 

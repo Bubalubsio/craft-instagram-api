@@ -69,35 +69,4 @@ class OauthController extends Controller
 
         return $this->redirect(UrlHelper::cpUrl('settings/plugins/instagram-api'));
     }
-
-    // URL: /actions/instagram-api/oauth/refresh-token
-    public function actionRefreshToken()
-    {
-        $settings = InstagramAPI::getInstance()->getSettings();
-        $accessToken = $settings->accessToken;
-
-        $client = new Client();
-
-        $response = $client->get('https://graph.instagram.com/refresh_access_token', [
-            'query' => [
-                'grant_type' => 'ig_refresh_token',
-                'access_token' => $accessToken,
-            ],
-        ]);
-
-        if ($response->getStatusCode() !== 200) {
-            Craft::$app->getSession()->setError('Failed to connect to Instagram');
-
-            return $this->redirect(UrlHelper::cpUrl('settings/plugins/instagram-api'));
-        }
-
-        $response = json_decode($response->getBody()->getContents());
-
-        $settings->accessToken = $response->access_token;
-        $settings->accessTokenExpires = date('Y-m-d H:i:s', time() + $response->expires_in);
-
-        Craft::$app->getPlugins()->savePluginSettings(InstagramAPI::getInstance(), $settings->getAttributes());
-
-        return $this->json(['success' => true]);
-    }
 }

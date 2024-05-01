@@ -14,7 +14,7 @@ class ApiController extends Controller
     protected array|bool|int $allowAnonymous = true;
 
     private string $apiBaseUrl = 'https://graph.instagram.com/me';
-    private CacheInterface $cache = Craft::$app->getCache();
+    private CacheInterface $cache;
     private int $cacheDuration = 60 * 60 * 24;
 
     public function beforeAction($action): bool
@@ -31,6 +31,8 @@ class ApiController extends Controller
         $profile = $this->cache->get('instagram-api-profile');
 
         if ($profile) {
+            $profile = json_decode($profile);
+
             return $this->asJson($profile);
         }
         
@@ -65,6 +67,8 @@ class ApiController extends Controller
         $media = $this->cache->get('instagram-api-media');
 
         if ($media) {
+            $media = json_decode($media);
+
             return $this->asJson($media);
         }
 
