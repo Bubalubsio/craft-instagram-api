@@ -45,6 +45,14 @@ class InstagramAPI extends Plugin
 
         Craft::$app->onInit(function () {
             $this->attachEventHandlers();
+
+            if (!$this->getSettings()->securityToken) {
+                $settings = $this->getSettings();
+
+                $settings->securityToken = Craft::$app->getSecurity()->generateRandomString();
+
+                Craft::$app->plugins->savePluginSettings($this, $settings->getAttributes());
+            }
         });
     }
 
@@ -52,8 +60,9 @@ class InstagramAPI extends Plugin
     {
         $appId = $this->getSettings()->appId;
         $redirectUri = $this->getRedirectUrl();
+        $securityToken = $this->getSettings()->securityToken;
 
-        return "https://api.instagram.com/oauth/authorize?client_id={$appId}&redirect_uri={$redirectUri}&response_type=code&scope=user_profile,user_media";
+        return "https://api.instagram.com/oauth/authorize?client_id={$appId}&redirect_uri={$redirectUri}&response_type=code&scope=user_profile,user_media&state={$securityToken}";
     }
 
     public function getRedirectUrl(): string

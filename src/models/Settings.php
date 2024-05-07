@@ -11,16 +11,16 @@ class Settings extends Model
     public $accessToken = '';
     public $accessTokenExpires = 0;
     public $cacheDuration = 60 * 60 * 24;
+    public $securityToken = '';
 
     public function rules(): array
     {
         return [
             ['appId', 'string'],
-            ['appId', 'required'],
             ['appSecret', 'string'],
-            ['appSecret', 'required'],
             ['cacheDuration', 'integer'],
             ['cacheDuration', 'required'],
+            ['securityToken', 'string'],
         ];
     }
 
@@ -32,6 +32,7 @@ class Settings extends Model
             'accessToken' => 'Access Token',
             'accessTokenExpires' => 'Date Access Token Expires',
             'cacheDuration' => 'Cache Duration',
+            'securityToken' => 'Security Token',
         ];
     }
 }

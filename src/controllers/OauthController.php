@@ -10,14 +10,20 @@ use GuzzleHttp\Client;
 
 class OauthController extends Controller
 {
-    protected array|bool|int $allowAnonymous = false;
+    protected array|bool|int $allowAnonymous = true;
 
     // URL: /actions/instagram-api/oauth/handle
     public function actionHandle()
     {
         $code = $this->request->getParam('code');
-        
+
         if (!$code) {
+            return null;
+        }
+
+        $state = $this->request->getParam('state');
+
+        if (!$state || $state !== InstagramAPI::getInstance()->getSettings()->securityToken) {
             return null;
         }
 
