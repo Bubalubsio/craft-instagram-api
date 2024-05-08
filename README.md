@@ -7,7 +7,7 @@ Instagram API Integration for Craft CMS, allowing you to fetch media from your I
 - Authenticate with Instagram Basic Display API using Meta's OAuth 2
 - Fetch Instagram Media and Profile Data
 - Twig, Javascript and PHP API
-- Full caching support and controls
+- Full caching support with preheating/clearing controls
 - Cron job support for refreshing access tokens
 - Manual token refreshing from the control panel or CLI
 
