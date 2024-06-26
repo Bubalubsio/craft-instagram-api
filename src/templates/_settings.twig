@@ -121,6 +121,13 @@
     <p>After saving your Instagram App ID and Secret, you need to authenticate with Instagram to get an access token. Click the button below to start the authorization flow with Instagram.</p>
 
     <a href="{{ plugin.getAuthUrl() }}" class="btn" target="_self">Authenticate with Instagram</a>
+  
+    {{ forms.copytextField({ 
+      label: 'Copy Authenticate with Instagram URL',
+      value: plugin.getAuthUrl(),
+    }) }}
+
+    <p><strong>Note:</strong> This URL can be used to authenticate on a different device or browser that is not currently logged in to Craft. It adds a unique security key to the URL to ensure the request is valid.</p>
   {% endif %}
 {% endif %}
 
