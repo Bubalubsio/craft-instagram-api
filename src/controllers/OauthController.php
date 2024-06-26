@@ -11,6 +11,14 @@ use GuzzleHttp\Client;
 class OauthController extends Controller
 {
     protected array|bool|int $allowAnonymous = true;
+    private Client $client;
+
+    public function beforeAction($action): bool
+    {
+        $this->client = Craft::createGuzzleClient();
+
+        return parent::beforeAction($action);
+    }
 
     // URL: /actions/instagram-api/oauth/handle
     public function actionHandle()
@@ -32,10 +40,8 @@ class OauthController extends Controller
         $appSecret = $settings->appSecret;
         $redirectUri = InstagramAPI::getInstance()->getRedirectUrl();
 
-        $client = new Client();
-
         // Exchange code for short-lived token
-        $response = $client->post('https://api.instagram.com/oauth/access_token', [
+        $response = $this->client->post('https://api.instagram.com/oauth/access_token', [
             'form_params' => [
                 'client_id' => $appId,
                 'client_secret' => $appSecret,
@@ -56,7 +62,7 @@ class OauthController extends Controller
         $shortLivedToken = $response->access_token;
 
         // Exchange short-lived token for long-lived token
-        $response = $client->get("https://graph.instagram.com/access_token?grant_type=ig_exchange_token&client_secret={$appSecret}&access_token={$shortLivedToken}");
+        $response = $this->client->get("https://graph.instagram.com/access_token?grant_type=ig_exchange_token&client_secret={$appSecret}&access_token={$shortLivedToken}");
 
         if ($response->getStatusCode() !== 200) {
             Craft::$app->getSession()->setError('Failed to connect to Instagram');

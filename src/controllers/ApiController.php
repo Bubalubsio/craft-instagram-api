@@ -14,13 +14,18 @@ class ApiController extends Controller
     protected array|bool|int $allowAnonymous = true;
 
     private string $apiBaseUrl = 'https://graph.instagram.com/me';
-    private CacheInterface $cache;
     private int $cacheDuration = 60 * 60 * 24;
+    private CacheInterface $cache;
+    private Client $client;
 
     public function beforeAction($action): bool
     {
         $this->cache = Craft::$app->getCache();
         $this->cacheDuration = InstagramAPI::getInstance()->getSettings()->cacheDuration;
+
+        $this->client = Craft::createGuzzleClient([
+            'base_uri' => $this->apiBaseUrl,
+        ]);
 
         return parent::beforeAction($action);
     }
@@ -42,9 +47,7 @@ class ApiController extends Controller
             return $this->asJson([]);
         }
 
-        $client = new Client();
-
-        $response = $client->get($this->apiBaseUrl . '?fields=id,username,account_type,media_count&access_token=' . $accessToken);
+        $response = $this->client->get('?fields=id,username,account_type,media_count&access_token=' . $accessToken);
 
         if ($response->getStatusCode() !== 200) {
             return $this->asJson([
@@ -74,9 +77,7 @@ class ApiController extends Controller
 
         $accessToken = InstagramAPI::getInstance()->getSettings()->accessToken;
 
-        $client = new Client();
-
-        $response = $client->get($this->apiBaseUrl . '/media?fields=id,caption,media_type,media_url,thumbnail_url,permalink,timestamp&access_token=' . $accessToken);
+        $response = $this->client->get('/media?fields=id,caption,media_type,media_url,thumbnail_url,permalink,timestamp&access_token=' . $accessToken);
 
         if ($response->getStatusCode() !== 200) {
             return $this->asJson([
