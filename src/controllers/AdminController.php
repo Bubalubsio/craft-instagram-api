@@ -24,6 +24,12 @@ class AdminController extends Controller
 
         Craft::$app->getSession()->setNotice('Access token cleared!');
 
+        // Clear the cache
+        $cache = Craft::$app->getCache();
+
+        $cache->delete('instagram-api-profile');
+        $cache->delete('instagram-api-media');
+
         return $this->redirect(UrlHelper::cpUrl('settings/plugins/instagram-api'));
     }
 
