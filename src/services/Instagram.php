@@ -41,7 +41,7 @@ class Instagram extends Component
             return [];
         }
 
-        $response = $this->client->get("/me?fields=id,username,account_type,media_count&access_token={$accessToken}");
+        $response = $this->client->get("/me?fields=id,username,account_type,biography,media_count,followers_count,follows_count,profile_picture_url&access_token={$accessToken}");
 
         if ($response->getStatusCode() !== 200) {
             return [];
@@ -108,7 +108,7 @@ class Instagram extends Component
         $settings->accessToken = $response->access_token;
         $settings->accessTokenExpires = date('Y-m-d H:i:s', time() + $response->expires_in);
 
-        return Craft::$app->getPlugins()->savePluginSettings(Craft::$app->plugins->getPlugin('instagram-api'), $settings->getAttributes()); 
+        return Craft::$app->getPlugins()->savePluginSettings(Craft::$app->plugins->getPlugin('instagram-api'), $settings->getAttributes());
     }
 
     public function getMediaCacheStatus(): bool
