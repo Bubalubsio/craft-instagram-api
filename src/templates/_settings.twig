@@ -65,7 +65,7 @@
 
       <h2>Profile</h4>
 
-      {% if instagramProfile.profile_picture_url %}
+      {% if instagramProfile.profile_picture_url is defined %}
         <img src="{{ instagramProfile.profile_picture_url }}" alt="{{ instagramProfile.username }}'s Instagram Profile Picture" style="border-radius:50%;width:150px;height:150px;">
       {% endif %}
 
@@ -77,7 +77,7 @@
         <strong>Followers:</strong> {{ instagramProfile.followers_count }}<br>
         <strong>Follows:</strong> {{ instagramProfile.follows_count }}<br>
         <strong>Biography:</strong><br>
-        {{ instagramProfile.biography }}
+        {{ instagramProfile.biography ?? '' }}
       </p>
 
       <a href="https://www.instagram.com/{{ instagramProfile.username }}" class="btn">View Instagram Profile</a>
