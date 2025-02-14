@@ -3,70 +3,177 @@
 
 {% import '_includes/forms.twig' as forms %}
 
-{% if not settings.accessToken %}
-  <h1>Setup</h1>
+	{% if settings.accessToken %}
+		<p style="background:#16A34A;display:inline-block;padding:12px 24px 12px 24px;color:white;border-radius:5px;font-size:16px;margin:0;"> You are successfully authenticated with
+		<strong>Instagram</strong>
+	</p>
 
-  <hr>
+	{% set instagramProfile = craft.instagram.getProfile(false) %}
 
-  <h2>Step 1</h2>
+	{% if instagramProfile %}
+		<hr>
 
-  <p>First you need to create an Instagram App. You can do this by visiting the <a href="https://developers.facebook.com">Facebook Developers</a> page. When creating the app select use case 'Other', then 'Business'. and then you will be able to Set Up the <strong>Instagram API</strong>.</p>
+		<h2>Connected Profile</h4>
 
-  <p>Add your instagram account to <span style="background:#eee;padding:8px;border-radius:5px;">App Roles -> Roles</span> on your Instagram App settings.</p>
+		{% if instagramProfile.profile_picture_url is defined %}
+			<img src="{{ instagramProfile.profile_picture_url }}" alt="{{ instagramProfile.username }}'s Instagram Profile Picture" style="border-radius:50%;width:150px;height:150px;">
+		{% endif %}
 
-  <p><strong>Note:</strong> You can find your <strong>App ID</strong>, <strong>App Secret</strong> and <strong>Valid OAuth Redirect URIs</strong> at: <span style="background:#eee;padding:8px;border-radius:5px;">Facebook Developers -> App Settings -> Products -> Instagram Basic Display -> Basic Display</span></p>
+		<p>
+			<strong>ID:</strong>
+			{{ instagramProfile.id }}<br>
+			<strong>Username:</strong>
+			{{ instagramProfile.username }}<br>
+			<strong>Account Type:</strong>
+			{{ instagramProfile.account_type }}<br>
+			<strong>Media Count:</strong>
+			{{ instagramProfile.media_count }}<br>
+			<strong>Followers:</strong>
+			{{ instagramProfile.followers_count }}<br>
+			<strong>Follows:</strong>
+			{{ instagramProfile.follows_count }}<br>
+			<strong>Biography:</strong><br>
+			{{ instagramProfile.biography ?? '' }}
+		</p>
 
-  <hr>
+		<a href="https://www.instagram.com/{{ instagramProfile.username }}" class="btn">View Instagram Profile</a>
+		<a href="/actions/instagram-api/admin/clear-access-token" class="btn submit">Disconnect</a>
 
-  <h2>Step 2</h2>
+		<hr>
 
-  <p>Add the following to the <strong>Valid OAuth Redirect URIs</strong> field on your Instagram App settings.</p>
+		{% set instagramMedia = craft.instagram.getMedia() %}
 
-  <p><strong>Note:</strong> If you are in a development environment, remember to additionally add your live domain to the <strong>Valid OAuth Redirect URIs</strong> field.</p>
+		{% if instagramMedia|length %}
+			<div>
+				<h2>Latest Media Preview</h2>
 
-  {{ forms.copytextField({ 
-    label: 'Copy Valid OAuth Redirect URI',
-    value: plugin.getRedirectUrl(),
-  }) }}
+				{% for media in instagramMedia %}
+					<div style="display:inline-block;margin:8px;max-width:100px;">
+						<a href="{{ media.permalink }}" title="View on Instagram" target="_blank">
+							<img src="{{ media.media_url }}" alt="{{ media.caption ?? 'Instagram image' }}"/>
+						</a>
+					</div>
+				{% endfor %}
+			</div>
+		{% endif %}
 
-  <hr>
+		<hr>
 
-  <h2>Step 3</h2>
+		<h2>Access token</h4>
 
-  <p>Fill in the following fields with your <strong>Instagram App ID</strong> and <strong>Instagram App Secret</strong>.</p>
+		<p>Expires:
+			<strong>{{ settings.accessTokenExpires|date('Y-m-d H:i:s') }}</strong>
+		</p>
 
-  {{ forms.textField({ 
-    label: 'Instagram App ID',
-    id: 'appId',
-    name: 'appId',
-    required: true,
-    value: settings.appId
-  }) }}
+		<p>It is recommended to setup a cron job to automatically refresh the access token every 30 days. You can do this by setting up your crontab with the following command:</p>
 
-  {{ forms.passwordField({ 
-    label: 'Instagram App Secret',
-    id: 'appSecret',
-    name: 'appSecret',
-    required: true,
-    value: settings.appSecret
-  }) }}
+		<pre style="background:#eee;padding:16px;color:black;line-height:28px;">{{ '0 0 1 * * /path/to/php /path/to/craft instagram-api/refresh-token' }}</pre>
 
-  {{ forms.submitButton({ label: 'Save' }) }}
-{% endif %}
+		<br>
 
-{% if settings.appId and settings.appSecret %}
-  {% if settings.accessToken %}
-    <p style="background:#16A34A;display:inline-block;padding:12px 24px 12px 24px;color:white;border-radius:5px;font-size:16px;margin:0;">You are successfully authenticated with <strong>Instagram</strong></p>
-  
-    {% set instagramProfile = craft.instagram.getProfile(false) %}
+		<a href="/actions/instagram-api/admin/refresh-access-token" class="btn">Manually Refresh Access Token</a>
+
+		<a href="/actions/instagram-api/admin/clear-access-token" class="btn submit">Clear Access Token</a>
+
+		<hr>
+
+		<h2>Caching</h4>
+
+		<p>Instagram data is automatically cached to significantly improve performance.</p>
+
+		{{ forms.textField({ 
+      label: 'Cache Duration (in seconds)',
+      id: 'cacheDuration',
+      name: 'cacheDuration',
+      required: true,
+      value: settings.cacheDuration
+    }) }}
+
+		{{ forms.submitButton({ label: 'Save' }) }}
+
+		<p>
+			<strong>Note:</strong>
+			If you need to refresh the data now, you can clear the cache below. You can also preheat the cache to ensure the cache is ready for the next request.</p>
+
+		<p>Media Cache Status:
+			<strong>{{ craft.instagram.getMediaCacheStatus() ? 'Cached' : 'Not Cached' }}</strong>
+		</p>
+		<p>Profile Cache Status:
+			<strong>{{ craft.instagram.getProfileCacheStatus() ? 'Cached' : 'Not Cached' }}</strong>
+		</p>
+
+		<a href="/actions/instagram-api/admin/preheat-cache" class="btn">Preheat Cache</a>
+
+		<a href="/actions/instagram-api/admin/clear-cache" class="btn submit">Clear Cache</a>
+
+		<hr>
+
+		<h1>Examples</h1>
+
+		<hr>
+
+		<h2>Twig</h2>
+
+		<h4>Loop through Instagram Media</h4>
+
+		<pre style="background:#eee;padding:16px;color:black;line-height:28px;">
+    {{ '{% set instagramMedia = craft.instagram.getMedia() %}
+
+    {% if instagramMedia|length %}
+        <div class="grid grid-cols-4 gap-4">
+            {% for media in instagramMedia %}
+                <div>
+                    <a href="{{ media.permalink }}" title="View on Instagram" target="_blank">
+                        <img src="{{ media.media_url }}" alt="{{ media.caption ?? \'Instagram image\' }}"/>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}'|e }}
+    </pre>
+
+    <br>
+
+    <h2>Javascript</h2>
+
+    <h4>Get Instagram Media</h4>
+
+    <p>Endpoint: <span style="background:#eee;padding:8px;border-radius:5px;">/actions/instagram-api/api/media</span></p>
+
+    <pre style="background:#eee;padding:16px;color:black;line-height:28px;">
+    {{ 'fetch(\'/actions/instagram-api/api/media\')
+      .then(response => response.json())
+      .then(data => {
+          console.log(data);
+      });'|e }}
+    </pre>
+
+    <br>
+
+    <h4>Get Instagram Profile</h4>
+
+    <p>Endpoint: <span style="background:#eee;padding:8px;border-radius:5px;">/actions/instagram-api/api/profile</span></p>
+
+    <pre style="background:#eee;padding:16px;color:black;line-height:28px;">
+    {{ 'fetch(\'/actions/instagram-api/api/profile\')
+      .then(response => response.json())
+      .then(data => {
+          console.log(data);
+      });'|e }}
+    </pre>
+
+    <hr>
+
+    <h4>Get Profile Data</h4>
+
+    <pre style="background:#eee;padding:16px;color:black;line-height:28px;">
+    {{ '{% set instagramProfile = craft.instagram.getProfile() %}
 
     {% if instagramProfile %}
-      <hr>
-
-      <h2>Connected Profile</h4>
+      <h2>Instagram Profile</h2>
 
       {% if instagramProfile.profile_picture_url is defined %}
-        <img src="{{ instagramProfile.profile_picture_url }}" alt="{{ instagramProfile.username }}'s Instagram Profile Picture" style="border-radius:50%;width:150px;height:150px;">
+        <img src="{{ instagramProfile.profile_picture_url }}" alt="{{ instagramProfile.username }}\'s Instagram Profile Picture" style="border-radius:50%;width:150px;height:150px;">
       {% endif %}
 
       <p>
@@ -77,207 +184,144 @@
         <strong>Followers:</strong> {{ instagramProfile.followers_count }}<br>
         <strong>Follows:</strong> {{ instagramProfile.follows_count }}<br>
         <strong>Biography:</strong><br>
-        {{ instagramProfile.biography ?? '' }}
+        {{ instagramProfile.biography ?? \'\' }}
       </p>
+    {% endif %}'|e }}
+    </pre>
 
-      <a href="https://www.instagram.com/{{ instagramProfile.username }}" class="btn">View Instagram Profile</a>
-      <a href="/actions/instagram-api/admin/clear-access-token" class="btn submit">Disconnect</a>
+		<hr>
 
-      <hr>
+		<h2>PHP</h2>
 
-      {% set instagramMedia = craft.instagram.getMedia() %}
+		<h4>Loop through Instagram Media and save locally</h4>
 
-      {% if instagramMedia|length %}
-          <div>
-              <h2>Latest Media Preview</h2>
+		<pre style="background:#eee;padding:16px;color:black;line-height:28px;">
+    {{ 'use bubalubs\\instagramapi\\InstagramAPI;
 
-              {% for media in instagramMedia %}
-                  <div style="display:inline-block;margin:8px;max-width:100px;">
-                      <a href="{{ media.permalink }}" title="View on Instagram" target="_blank">
-                          <img src="{{ media.media_url }}" alt="{{ media.caption ?? 'Instagram image' }}"/>
-                      </a>
-                  </div>
-              {% endfor %}
-          </div>
-      {% endif %}
+    // ...
 
-      <hr>
+    $instagramMedia = InstagramAPI::getInstance()->instagram->getMedia();
 
-      <h2>Access token</h4>
+    foreach ($instagramMedia as $media) {
+        $mediaUrl = $media[\'media_url\'];
+        $file = file_get_contents($mediaUrl);
 
-      <p>Expires: <strong>{{ settings.accessTokenExpires|date('Y-m-d H:i:s') }}</strong></p>
+        // Strip query string from filename
+        $newFilename = pathinfo(explode(\'?\', $mediaUrl)[0], PATHINFO_BASENAME);
+        
+        // Check if directory exists
+        if (!file_exists(Craft::$app->path->getStoragePath() . \'/instagram\')) {
+            mkdir(Craft::$app->path->getStoragePath() . \'/instagram\', 0775, true);
+        }
 
-      <p>It is recommended to setup a cron job to automatically refresh the access token every 30 days. You can do this by setting up your crontab with the following command:</p>
+        // Save file locally
+        file_put_contents(Craft::$app->path->getStoragePath() . \'/instagram/\' . $newFilename, $file);
+    }'|e }}
+    </pre>
 
-      <pre style="background:#eee;padding:16px;color:black;line-height:28px;">{{ '0 0 1 * * /path/to/php /path/to/craft instagram-api/refresh-token' }}</pre>
+		<br>
 
-      <br>
+		<h4>Get Profile Data</h4>
 
-      <a href="/actions/instagram-api/admin/refresh-access-token" class="btn">Manually Refresh Access Token</a>
+		<pre style="background:#eee;padding:16px;color:black;line-height:28px;">
+    {{ 'use bubalubs\\instagramapi\\InstagramAPI;
 
-      <a href="/actions/instagram-api/admin/clear-access-token" class="btn submit">Clear Access Token</a>
+    // ...
 
-      <hr>
+    $instagramProfile = InstagramAPI::getInstance()->instagram->getProfile();'|e }}
+    </pre>
+	{% endif %}
+{% else %}
+	<h1>Setup</h1>
 
-      <h2>Caching</h4>
+	<hr>
 
-      <p>Instagram data is automatically cached to significantly improve performance.</p>
-      
-      {{ forms.textField({ 
-        label: 'Cache Duration (in seconds)',
-        id: 'cacheDuration',
-        name: 'cacheDuration',
-        required: true,
-        value: settings.cacheDuration
-      }) }}
+	{% if settings.appId and settings.appSecret %}
+		<h2>Step 4</h2>
 
-      {{ forms.submitButton({ label: 'Save' }) }}
+		<p>After saving your Instagram App ID and Secret, you need to authenticate with Instagram to get an access token. Click the button below to start the authorization flow with Instagram.</p>
 
-      <p><strong>Note:</strong> If you need to refresh the data now, you can clear the cache below. You can also preheat the cache to ensure the cache is ready for the next request.</p>
+		<a href="{{ plugin.getAuthUrl() }}" class="btn submit" target="_self">Authenticate with Instagram</a>
+		<a href="/actions/instagram-api/admin/clear-app-id-secret" class="btn">Reset App ID and Secret</a>
 
-      <p>Media Cache Status: <strong>{{ craft.instagram.getMediaCacheStatus() ? 'Cached' : 'Not Cached' }}</strong></p>
-      <p>Profile Cache Status: <strong>{{ craft.instagram.getProfileCacheStatus() ? 'Cached' : 'Not Cached' }}</strong></p>
-
-      <a href="/actions/instagram-api/admin/preheat-cache" class="btn">Preheat Cache</a>
-
-      <a href="/actions/instagram-api/admin/clear-cache" class="btn submit">Clear Cache</a>
-    {% endif %}
-  {% else %}
-    <hr>
-
-    <h2>Step 4</h2>
-
-    <p>After saving your Instagram App ID and Secret, you need to authenticate with Instagram to get an access token. Click the button below to start the authorization flow with Instagram.</p>
-
-    <a href="{{ plugin.getAuthUrl() }}" class="btn" target="_self">Authenticate with Instagram</a>
-  
-    {{ forms.copytextField({ 
+		{{ forms.copytextField({ 
       label: 'Copy Authenticate with Instagram URL',
       value: plugin.getAuthUrl(),
     }) }}
 
-    <p><strong>Note:</strong> This URL can be used to authenticate on a different device or browser that is not currently logged in to Craft. It adds a unique security key to the URL to ensure the request is valid.</p>
-  {% endif %}
+		<p>
+			<strong>Note:</strong>
+			This URL can be used to authenticate on a different device or browser that is not currently logged in to Craft.<br>
+			It adds a unique security key to the URL to ensure the request is valid.
+		</p>
+	{% else %}
+		<h2>Step 1</h2>
+
+		<p>First you need to create an Instagram App. You can do this by visiting the
+			<a href="https://developers.facebook.com">
+				Facebook Developers</a>
+			page.<br>When creating the app select use case 'Other', then 'Business'. and then you will be able to Set Up the
+			<strong>Instagram API</strong>.</p>
+
+		<p>Add your instagram account to
+			<span style="background:#eee;padding:8px;border-radius:5px;">App Roles -> Roles</span>
+			on your Instagram App settings.</p>
+
+		<p>
+			<strong>Note:</strong>
+			You can find your
+			<strong>App ID</strong>,
+			<strong>App Secret</strong>
+			and
+			<strong>Valid OAuth Redirect URIs</strong>
+			at:
+			<span style="background:#eee;padding:8px;border-radius:5px;">Facebook Developers -> App Settings -> Products -> Instagram Basic Display -> Basic Display</span>
+		</p>
+
+		<hr>
+
+		<h2>Step 2</h2>
+
+		<p>Add the following to the
+			<strong>Valid OAuth Redirect URIs</strong>
+			field on your Instagram App settings.</p>
+
+		<p>
+			<strong>Note:</strong>
+			If you are in a development environment, remember to additionally add your live domain to the
+			<strong>Valid OAuth Redirect URIs</strong>
+			field.</p>
+
+		{{ forms.copytextField({ 
+      label: 'Copy Valid OAuth Redirect URI',
+      value: plugin.getRedirectUrl(),
+    }) }}
+
+		<hr>
+
+		<h2>Step 3</h2>
+
+		<p>Fill in the following fields with your
+			<strong>Instagram App ID</strong>
+			and
+			<strong>Instagram App Secret</strong>.</p>
+
+		{{ forms.textField({ 
+      label: 'Instagram App ID',
+      id: 'appId',
+      name: 'appId',
+      required: true,
+      value: settings.appId
+    }) }}
+
+		{{ forms.passwordField({ 
+      label: 'Instagram App Secret',
+      id: 'appSecret',
+      name: 'appSecret',
+      required: true,
+      value: settings.appSecret
+    }) }}
+
+		{{ forms.submitButton({ label: 'Save' }) }}
+	{% endif %}
 {% endif %}
-
-<hr>
-
-<h1>Javascript API Examples</h1>
-
-<h4>Get Instagram Media</h4>
-
-<p>Endpoint: <span style="background:#eee;padding:8px;border-radius:5px;">/actions/instagram-api/api/media</span></p>
-
-<pre style="background:#eee;padding:16px;color:black;line-height:28px;">
-{{ 'fetch(\'/actions/instagram-api/api/media\')
-  .then(response => response.json())
-  .then(data => {
-      console.log(data);
-  });'|e }}
-</pre>
-
-<br>
-
-<h4>Get Instagram Profile</h4>
-
-<p>Endpoint: <span style="background:#eee;padding:8px;border-radius:5px;">/actions/instagram-api/api/profile</span></p>
-
-<pre style="background:#eee;padding:16px;color:black;line-height:28px;">
-{{ 'fetch(\'/actions/instagram-api/api/profile\')
-  .then(response => response.json())
-  .then(data => {
-      console.log(data);
-  });'|e }}
-</pre>
-
-<hr>
-
-<h1>Twig Examples</h1>
-
-<h4>Loop through Instagram Media</h4>
-
-<pre style="background:#eee;padding:16px;color:black;line-height:28px;">
-{{ '{% set instagramMedia = craft.instagram.getMedia() %}
-
-{% if instagramMedia|length %}
-    <div class="grid grid-cols-4 gap-4">
-        {% for media in instagramMedia %}
-            <div>
-                <a href="{{ media.permalink }}" title="View on Instagram" target="_blank">
-                    <img src="{{ media.media_url }}" alt="{{ media.caption ?? \'Instagram image\' }}"/>
-                </a>
-            </div>
-        {% endfor %}
-    </div>
-{% endif %}'|e }}
-</pre>
-
-<br>
-
-<h4>Get Profile Data</h4>
-
-<pre style="background:#eee;padding:16px;color:black;line-height:28px;">
-{{ '{% set instagramProfile = craft.instagram.getProfile() %}
-
-{% if instagramProfile %}
-  <h2>Instagram Profile</h2>
-
-  {% if instagramProfile.profile_picture_url is defined %}
-    <img src="{{ instagramProfile.profile_picture_url }}" alt="{{ instagramProfile.username }}\'s Instagram Profile Picture" style="border-radius:50%;width:150px;height:150px;">
-  {% endif %}
-
-  <p>
-    <strong>ID:</strong> {{ instagramProfile.id }}<br>
-    <strong>Username:</strong> {{ instagramProfile.username }}<br>
-    <strong>Account Type:</strong> {{ instagramProfile.account_type }}<br>
-    <strong>Media Count:</strong> {{ instagramProfile.media_count }}<br>
-    <strong>Followers:</strong> {{ instagramProfile.followers_count }}<br>
-    <strong>Follows:</strong> {{ instagramProfile.follows_count }}<br>
-    <strong>Biography:</strong><br>
-    {{ instagramProfile.biography ?? \'\' }}
-  </p>
-{% endif %}'|e }}
-</pre>
-
-<hr>
-
-<h1>PHP Examples</h1>
-
-<h4>Loop through Instagram Media and save locally</h4>
-
-<pre style="background:#eee;padding:16px;color:black;line-height:28px;">
-{{ 'use bubalubs\\instagramapi\\InstagramAPI;
-
-// ...
-
-$instagramMedia = InstagramAPI::getInstance()->instagram->getMedia();
-
-foreach ($instagramMedia as $media) {
-    $mediaUrl = $media[\'media_url\'];
-    $file = file_get_contents($mediaUrl);
-
-    // Strip query string from filename
-    $newFilename = pathinfo(explode(\'?\', $mediaUrl)[0], PATHINFO_BASENAME);
-    
-    // Check if directory exists
-    if (!file_exists(Craft::$app->path->getStoragePath() . \'/instagram\')) {
-        mkdir(Craft::$app->path->getStoragePath() . \'/instagram\', 0775, true);
-    }
-
-    // Save file locally
-    file_put_contents(Craft::$app->path->getStoragePath() . \'/instagram/\' . $newFilename, $file);
-}'|e }}
-</pre>
-
-<br>
-
-<h4>Get Profile Data</h4>
-
-<pre style="background:#eee;padding:16px;color:black;line-height:28px;">
-{{ 'use bubalubs\\instagramapi\\InstagramAPI;
-
-// ...
-
-$instagramProfile = InstagramAPI::getInstance()->instagram->getProfile();'|e }}
-</pre>
-
