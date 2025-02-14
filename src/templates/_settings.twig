@@ -56,14 +56,14 @@
 
 {% if settings.appId and settings.appSecret %}
   {% if settings.accessToken %}
-    <p style="background:#16A34A;display:inline-block;padding:12px 24px 12px 24px;color:white;border-radius:5px;font-size:16px;margin:0;">You are successfully authenticated with Instagram!</p>
+    <p style="background:#16A34A;display:inline-block;padding:12px 24px 12px 24px;color:white;border-radius:5px;font-size:16px;margin:0;">You are successfully authenticated with <strong>Instagram</strong></p>
   
     {% set instagramProfile = craft.instagram.getProfile(false) %}
 
     {% if instagramProfile %}
       <hr>
 
-      <h2>Profile</h4>
+      <h2>Connected Profile</h4>
 
       {% if instagramProfile.profile_picture_url is defined %}
         <img src="{{ instagramProfile.profile_picture_url }}" alt="{{ instagramProfile.username }}'s Instagram Profile Picture" style="border-radius:50%;width:150px;height:150px;">
@@ -81,6 +81,7 @@
       </p>
 
       <a href="https://www.instagram.com/{{ instagramProfile.username }}" class="btn">View Instagram Profile</a>
+      <a href="/actions/instagram-api/admin/clear-access-token" class="btn submit">Disconnect</a>
 
       <hr>
 
