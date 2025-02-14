@@ -221,11 +221,19 @@
 {% if instagramProfile %}
   <h2>Instagram Profile</h2>
 
+  {% if instagramProfile.profile_picture_url is defined %}
+    <img src="{{ instagramProfile.profile_picture_url }}" alt="{{ instagramProfile.username }}\'s Instagram Profile Picture" style="border-radius:50%;width:150px;height:150px;">
+  {% endif %}
+
   <p>
-      <strong>ID:</strong> {{ instagramProfile.id }}<br>
-      <strong>Username:</strong> {{ instagramProfile.username }}<br>
-      <strong>Account Type:</strong> {{ instagramProfile.account_type }}<br>
-      <strong>Media Count:</strong> {{ instagramProfile.media_count }}<br>
+    <strong>ID:</strong> {{ instagramProfile.id }}<br>
+    <strong>Username:</strong> {{ instagramProfile.username }}<br>
+    <strong>Account Type:</strong> {{ instagramProfile.account_type }}<br>
+    <strong>Media Count:</strong> {{ instagramProfile.media_count }}<br>
+    <strong>Followers:</strong> {{ instagramProfile.followers_count }}<br>
+    <strong>Follows:</strong> {{ instagramProfile.follows_count }}<br>
+    <strong>Biography:</strong><br>
+    {{ instagramProfile.biography ?? \'\' }}
   </p>
 {% endif %}'|e }}
 </pre>
