@@ -103,7 +103,7 @@ fetch('/actions/instagram-api/api/profile')
         {% for media in instagramMedia %}
             <div>
                 <a href="{{ media.permalink }}" title="View on Instagram" target="_blank">
-                    <img src="{{ media.media_url }}" alt="{{ media.caption }}" />
+                    <img src="{{ media.media_url }}" alt="{{ media.caption ?? 'Instagram image' }}"/>
                 </a>
             </div>
         {% endfor %}
