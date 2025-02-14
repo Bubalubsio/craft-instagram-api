@@ -16,9 +16,6 @@ use bubalubs\craftinstagramapi\services\Instagram;
  *
  * @method static InstagramAPI getInstance()
  * @method Settings getSettings()
- * @author Bubalubs <adam@bubalubs.io>
- * @copyright Bubalubs
- * @license https://craftcms.github.io/license/ Craft License
  * @property-read InstagramApi $instagramApi
  */
 class InstagramAPI extends Plugin
@@ -35,11 +32,9 @@ class InstagramAPI extends Plugin
 
     public function init(): void
     {
-        if (Craft::$app->getRequest()->getIsConsoleRequest()) {
-            $this->controllerNamespace = 'bubalubs\\craftinstagramapi\\console\\controllers';
-        } else {
-            $this->controllerNamespace = 'bubalubs\\craftinstagramapi\\controllers';
-        }
+        $this->controllerNamespace = Craft::$app->getRequest()->getIsConsoleRequest()
+            ? 'bubalubs\\craftinstagramapi\\console\\controllers'
+            : 'bubalubs\\craftinstagramapi\\controllers';
 
         parent::init();
 
@@ -48,9 +43,7 @@ class InstagramAPI extends Plugin
 
             if (!$this->getSettings()->securityToken) {
                 $settings = $this->getSettings();
-
                 $settings->securityToken = Craft::$app->getSecurity()->generateRandomString();
-
                 Craft::$app->plugins->savePluginSettings($this, $settings->getAttributes());
             }
         });
@@ -61,8 +54,9 @@ class InstagramAPI extends Plugin
         $appId = $this->getSettings()->appId;
         $redirectUri = $this->getRedirectUrl();
         $securityToken = $this->getSettings()->securityToken;
+        $scopes = 'instagram_business_basic,instagram_business_content_publish';
 
-        return "https://api.instagram.com/oauth/authorize?client_id={$appId}&redirect_uri={$redirectUri}&response_type=code&scope=user_profile,user_media&state={$securityToken}";
+        return "https://www.instagram.com/oauth/authorize?client_id={$appId}&redirect_uri={$redirectUri}&state={$securityToken}&scope={$scopes}&response_type=code";
     }
 
     public function getRedirectUrl(): string
@@ -91,7 +85,6 @@ class InstagramAPI extends Plugin
             function (Event $e) {
                 /** @var CraftVariable $variable */
                 $variable = $e->sender;
-
                 $variable->set('instagram', Instagram::class);
             }
         );
