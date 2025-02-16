@@ -236,7 +236,7 @@
 
 	<hr>
 
-	{% if not settings.appId or not settings.appSecret %}
+	{% if settings.appId and settings.appSecret %}
 		<h2>Step 4</h2>
 
 		<p>After saving your Instagram App ID and Secret, you need to authenticate with Instagram to get an access token. Click the button below to start the authorization flow with Instagram.</p>
@@ -306,20 +306,22 @@
 			and
 			<strong>Instagram App Secret</strong>.</p>
 
-		{{ forms.textField({ 
+		{{ forms.autosuggestField({ 
       label: 'Instagram App ID',
       id: 'appId',
       name: 'appId',
       required: true,
-      value: settings.appId
+      value: settings.appId,
+      suggestEnvVars: true
     }) }}
 
-		{{ forms.passwordField({ 
+		{{ forms.autosuggestField({ 
       label: 'Instagram App Secret',
       id: 'appSecret',
       name: 'appSecret',
       required: true,
-      value: settings.appSecret
+      value: settings.appSecret,
+      suggestEnvVars: true
     }) }}
 
 		{{ forms.submitButton({ label: 'Save' }) }}
