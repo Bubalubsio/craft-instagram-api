@@ -7,11 +7,25 @@ use craft\web\Controller;
 use yii\web\Response;
 use bubalubs\craftinstagramapi\InstagramAPI;
 use craft\helpers\UrlHelper;
-use GuzzleHttp\Client;
 
 class AdminController extends Controller
 {
     protected array|bool|int $allowAnonymous = false;
+
+    // URL: /actions/instagram-api/api/clear-app-id-secret
+    public function actionClearAppIdSecret(): Response
+    {
+        $settings = InstagramAPI::getInstance()->getSettings();
+
+        $settings->appId = null;
+        $settings->appSecret = null;
+
+        Craft::$app->getPlugins()->savePluginSettings(InstagramAPI::getInstance(), $settings->getAttributes());
+
+        Craft::$app->getSession()->setNotice('App ID and secret cleared!');
+
+        return $this->redirect(UrlHelper::cpUrl('settings/plugins/instagram-api'));
+    }
 
     // URL: /actions/instagram-api/admin/clear-access-token
     public function actionClearAccessToken(): Response
