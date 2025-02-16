@@ -5,7 +5,8 @@ Instagram Integration for Craft CMS, allowing you to fetch media and profile fro
 ## Features
 
 - Craft 5 Support!
-- Authenticate with Instagram Basic Display API using Meta's OAuth 2
+- No dependencies on third-party libraries
+- Authenticate via OAuth 2
 - Fetch Instagram Media and Profile Data
 - Twig, Javascript and PHP API
 - Full caching support with preheating/clearing controls
