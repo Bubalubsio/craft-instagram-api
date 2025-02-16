@@ -1,6 +1,6 @@
-# Instagram API Plugin - Craft CMS
+# Instagram Plugin - Craft CMS
 
-Instagram API Integration for Craft CMS, allowing you to fetch media and profile from Instagram and display it on your website via the Instagram API.
+Instagram Integration for Craft CMS, allowing you to fetch media and profile from Instagram and display it on your website via the Instagram API.
 
 ## Features
 
